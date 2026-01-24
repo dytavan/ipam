@@ -2,3 +2,4 @@ bin/ipam-mac
 .env
 ipam
 ipam.db
+.DS_Store

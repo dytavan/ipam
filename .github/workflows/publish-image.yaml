@@ -23,7 +23,7 @@ env:
 
 jobs:
     build_and_publish:
-        runs-on: debian-latest
+        runs-on: ubuntu-latest
 
         steps:
             - name: Checkout

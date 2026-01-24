@@ -1,3 +1,5 @@
+[![Docker image CI](https://github.com/dytavan/ipam/actions/workflows/publish-image.yaml/badge.svg)](https://github.com/dytavan/ipam/actions/workflows/publish-image.yaml)
+
 # IPAM (IP Address Management)
 
 A lightweight and efficient IP Address Management (IPAM) system built with **Go** and **SQLite**. This application helps network administrators manage racks, devices, and IP allocations within their infrastructure through a clean web interface.

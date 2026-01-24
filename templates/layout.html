@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{block "title" .}}Homelab IPAM{{end}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css?v=2">
+    {{block "head" .}}{{end}}
+</head>
+
+<body>
+    <div class="hero-header">
+        <div class="container">
+            <header>
+                <a href="/" class="brand" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="/static/img/logo.png" alt="Logo" style="height: 40px; width: auto;">
+                    Homelab IPAM
+                </a>
+                <nav>
+                    <a href="/" class="btn btn-secondary" style="margin-right: 0.5rem;">Dashboard</a>
+                    <a href="/add" class="btn" style="margin-right: 0.5rem;">Add Device</a>
+                    <a href="/settings" class="btn btn-secondary">Settings</a>
+                </nav>
+            </header>
+        </div>
+    </div>
+
+    <div class="container">
+        {{block "content" .}}{{end}}
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2026 Homelab Manager. Built with Go.</p>
+        </footer>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+name: ipam
+services:
+  ipam:
+    image: davidyannick/ipam:1.0.0
+    container_name: ipam
+    restart: always
+
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"

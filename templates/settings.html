@@ -1,0 +1,55 @@
+{{define "title"}}Settings - Homelab IPAM{{end}}
+
+{{define "content"}}
+<div class="row" style="margin-bottom: 2rem;">
+    <div class="col">
+        <h1>Settings</h1>
+    </div>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto; margin-bottom: 2rem;">
+    <h2>Database Backup</h2>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+        Download a snapshot of the current database. You can use this file to restore the system state later.
+    </p>
+    <a href="/backup" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            style="margin-right: 0.5rem;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download Backup
+    </a>
+</div>
+
+<div class="card"
+    style="max-width: 600px; margin: 0 auto; border: 1px solid var(--danger); background-color: rgba(239, 68, 68, 0.05);">
+    <h2 style="color: var(--danger);">Restore Database</h2>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+        <strong>Warning:</strong> Restoring a database will overwrite the current data permanently. The application will
+        briefly reconnect to the new database.
+    </p>
+
+    <form action="/restore" method="POST" enctype="multipart/form-data"
+        onsubmit="return confirm('Are you sure you want to overwrite the database? Current data will be lost.');">
+        <div class="form-group">
+            <label for="backup_file">Select Backup File (.db, .sqlite)</label>
+            <input type="file" id="backup_file" name="backup_file" accept=".db,.sqlite,.sqlite3" required
+                style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius);">
+        </div>
+        <button type="submit" class="btn btn-danger" style="width: 100%;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                style="margin-right: 0.5rem;">
+                <polyline points="16 16 12 12 8 16"></polyline>
+                <line x1="12" y1="12" x2="12" y2="21"></line>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+                <polyline points="16 16 12 12 8 16"></polyline>
+            </svg>
+            Restore Database
+        </button>
+    </form>
+</div>
+{{end}}

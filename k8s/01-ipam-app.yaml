@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipam
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ipam
+  template:
+    metadata:
+      labels:
+        app: ipam
+    spec:
+      containers:
+        - name: ipam
+          image: davidyannick/ipam:latest
+          env:
+            - name: DB_PATH
+              value: "/data/ipam.db"
+          volumeMounts:
+            - name: ipam-storage
+              mountPath: "/data"
+
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "500m"
+            limits:
+              memory: "256Mi"
+              cpu: "1000m"
+          ports:
+            - containerPort: 8080
+
+      volumes:
+        - name: ipam-storage
+          persistentVolumeClaim:
+            claimName: ipam-pvc

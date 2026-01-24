@@ -1,0 +1,56 @@
+name: Docker image CI
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+
+concurrency:
+    group: docker-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+    packages: write
+
+env:
+    REGISTRY: ghcr.io
+    IMAGE: ghcr.io/davidyannick86/ipam
+    BASE_VERSION: "1.0"
+
+jobs:
+    build_and_publish:
+        runs-on: debian-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Log in to GHCR
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: davidyannick86
+                  password: ${{ secrets.GH_TOKEN }}
+
+            - name: Compute version tag
+              id: version
+              run: |
+                  echo "tag=${BASE_VERSION}.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+
+            - name: Build and push
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  push: ${{ github.event_name != 'pull_request' }}
+                  tags: |
+                      ${{ env.IMAGE }}:latest
+                      ${{ env.IMAGE }}:${{ steps.version.outputs.tag }}
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max

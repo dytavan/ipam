@@ -1,0 +1,142 @@
+{{define "title"}}{{if .}}Edit Device{{else}}Add Device{{end}} - Homelab IPAM{{end}}
+
+{{define "content"}}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1 style="margin-bottom: 2rem;">{{if .Device.ID}}Edit Device{{else}}Add New Device{{end}}</h1>
+
+    <div class="card">
+        <form action="{{if .Device.ID}}/update{{else}}/create{{end}}" method="POST">
+            {{if .Device.ID}}<input type="hidden" name="id" value="{{.Device.ID}}">{{end}}
+
+            <div class="form-group">
+                <label for="hostname">Hostname</label>
+                <input type="text" id="hostname" name="hostname" value="{{.Device.Hostname}}" required autofocus
+                    placeholder="e.g. proxmox-01">
+            </div>
+
+            <div class="form-group">
+                <label for="device_type">Device Type</label>
+                <select id="device_type" name="device_type">
+                    <option value="Hypervisor" {{if eq .Device.DeviceType "Hypervisor" }}selected{{end}}>Hypervisor
+                    </option>
+                    <option value="Serveur" {{if eq .Device.DeviceType "Serveur" }}selected{{end}}>Serveur</option>
+                    <option value="Raspberry Pi" {{if eq .Device.DeviceType "Raspberry Pi" }}selected{{end}}>Raspberry
+                        Pi</option>
+                    <option value="NAS" {{if eq .Device.DeviceType "NAS" }}selected{{end}}>NAS</option>
+                    <option value="Router" {{if eq .Device.DeviceType "Router" }}selected{{end}}>Router</option>
+                    <option value="Switch" {{if eq .Device.DeviceType "Switch" }}selected{{end}}>Switch</option>
+                    <option value="VM" {{if eq .Device.DeviceType "VM" }}selected{{end}}>Virtual Machine</option>
+                    <option value="Container Docker" {{if eq .Device.DeviceType "Container Docker" }}selected{{end}}>
+                        Container Docker</option>
+                    <option value="Container LXC" {{if eq .Device.DeviceType "Container LXC" }}selected{{end}}>Container
+                        LXC</option>
+                    <option value="Control Plane Kubernetes" {{if eq .Device.DeviceType "Control Plane Kubernetes"
+                        }}selected{{end}}>Control Plane Kubernetes</option>
+                    <option value="Worker Kubernetes" {{if eq .Device.DeviceType "Worker Kubernetes" }}selected{{end}}>
+                        Worker Kubernetes</option>
+                    <option value="Load Balancer" {{if eq .Device.DeviceType "Load Balancer" }}selected{{end}}>
+                        Load Balancer</option>
+                    <option value="Proxy" {{if eq .Device.DeviceType "Proxy" }}selected{{end}}>Proxy</option>
+                    <option value="Firewall" {{if eq .Device.DeviceType "Firewall" }}selected{{end}}>Firewall</option>
+                    <option value="TV" {{if eq .Device.DeviceType "TV" }}selected{{end}}>TV</option>
+                    <option value="Apple TV" {{if eq .Device.DeviceType "Apple TV" }}selected{{end}}>Apple TV</option>
+                    <option value="Nvidia Shield" {{if eq .Device.DeviceType "Nvidia Shield" }}selected{{end}}>Nvidia
+                        Shield</option>
+                    <option value="iPhone" {{if eq .Device.DeviceType "iPhone" }}selected{{end}}>iPhone</option>
+                    <option value="IoT" {{if eq .Device.DeviceType "IoT" }}selected{{end}}>IoT Device</option>
+                    <option value="Workstation" {{if eq .Device.DeviceType "Workstation" }}selected{{end}}>Workstation
+                    </option>
+                    <option value="Other" {{if eq .Device.DeviceType "Other" }}selected{{end}}>Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="rack">Rack Location</label>
+                <select id="rack" name="rack_id">
+                    <option value="0">-- Select Rack --</option>
+                    {{range .Racks}}
+                    <option value="{{.ID}}" {{if $.Device.RackID}}{{if eq $.Device.RackID .ID}}selected{{end}}{{end}}>
+                        {{.Name}} ({{.Location}})</option>
+                    {{end}}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Network Interfaces</label>
+                <div id="interfaces-container">
+                    {{if .Device.Interfaces}}
+                    {{range .Device.Interfaces}}
+                    <div class="interface-row" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <input type="text" name="ip_address" placeholder="IP Address" value="{{.IPAddress}}" required
+                            style="flex: 2;">
+                        <input type="text" name="mac_address" placeholder="MAC Address" value="{{.MACAddress}}"
+                            style="flex: 2;">
+                        <input type="text" name="label" placeholder="Label (e.g. LAN)" value="{{.Label}}"
+                            style="flex: 1;">
+                        <button type="button" class="btn btn-danger" onclick="removeInterface(this)"
+                            style="padding: 0.5rem 1rem;">X</button>
+                    </div>
+                    {{end}}
+                    {{else}}
+                    <!-- Default empty row for new device or device with no interfaces -->
+                    <div class="interface-row" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <input type="text" name="ip_address" placeholder="IP Address" required style="flex: 2;">
+                        <input type="text" name="mac_address" placeholder="MAC Address" style="flex: 2;">
+                        <input type="text" name="label" placeholder="Label (e.g. LAN)" style="flex: 1;">
+                        <button type="button" class="btn btn-danger" onclick="removeInterface(this)"
+                            style="padding: 0.5rem 1rem;">X</button>
+                    </div>
+                    {{end}}
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addInterface()">+ Add Interface</button>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="Online" {{if eq .Device.Status "Online" }}selected{{end}}>Online</option>
+                    <option value="Offline" {{if eq .Device.Status "Offline" }}selected{{end}}>Offline</option>
+                    <option value="Reserved" {{if eq .Device.Status "Reserved" }}selected{{end}}>Reserved</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3"
+                    placeholder="Optional notes">{{.Device.Description}}</textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn">Save Device</button>
+                <a href="/" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function addInterface() {
+        const container = document.getElementById('interfaces-container');
+        const row = document.createElement('div');
+        row.className = 'interface-row';
+        row.style.cssText = 'display: flex; gap: 1rem; margin-bottom: 1rem;';
+        row.innerHTML = `
+        <input type="text" name="ip_address" placeholder="IP Address" required style="flex: 2;">
+        <input type="text" name="mac_address" placeholder="MAC Address" style="flex: 2;">
+        <input type="text" name="label" placeholder="Label (e.g. LAN)" style="flex: 1;">
+        <button type="button" class="btn btn-danger" onclick="removeInterface(this)" style="padding: 0.5rem 1rem;">X</button>
+    `;
+        container.appendChild(row);
+    }
+
+    function removeInterface(btn) {
+        const container = document.getElementById('interfaces-container');
+        if (container.children.length > 1) {
+            btn.parentElement.remove();
+        } else {
+            const inputs = btn.parentElement.querySelectorAll('input');
+            inputs.forEach(input => input.value = '');
+        }
+    }
+</script>
+{{end}}

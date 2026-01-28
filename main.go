@@ -47,7 +47,7 @@ func main() {
 
 	http.HandleFunc("/ping", handlers.PingDeviceHandler)
 	http.HandleFunc("/export/csv", handlers.ExportCSVHandler)
-	http.HandleFunc("/export/excel", handlers.ExportExcelHandler)
+	http.HandleFunc("/export/json", handlers.ExportJSONHandler)
 	http.HandleFunc("/scan", handlers.ScanSubnetHandler)
 
 	// Admin / Settings

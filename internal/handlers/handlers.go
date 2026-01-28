@@ -18,8 +18,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/xuri/excelize/v2"
 )
 
 // render parses the layout and the specific view template and executes the layout.
@@ -720,55 +718,20 @@ func ExportCSVHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ExportExcelHandler exports devices to Excel
-func ExportExcelHandler(w http.ResponseWriter, r *http.Request) {
+// ExportJSONHandler exports devices to JSON
+func ExportJSONHandler(w http.ResponseWriter, r *http.Request) {
 	devices, err := db.GetAllDevices()
 	if err != nil {
 		http.Error(w, "Could not fetch devices", http.StatusInternalServerError)
 		return
 	}
 
-	f := excelize.NewFile()
-	sheet := "Devices"
-	index, _ := f.NewSheet(sheet)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Disposition", "attachment; filename=devices.json")
 
-	// Headers
-	headers := []string{"ID", "Hostname", "Type", "Rack", "Status", "IP Addresses", "MAC Addresses", "Description", "Last Updated"}
-	for i, h := range headers {
-		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
-		f.SetCellValue(sheet, cell, h)
-	}
-
-	// Data
-	for i, d := range devices {
-		row := i + 2
-
-		var ips, macs []string
-		for _, iface := range d.Interfaces {
-			ip := iface.IPAddress
-			if iface.Label != "" {
-				ip += " (" + iface.Label + ")"
-			}
-			ips = append(ips, ip)
-			macs = append(macs, iface.MACAddress)
-		}
-
-		f.SetCellValue(sheet, fmt.Sprintf("A%d", row), d.ID)
-		f.SetCellValue(sheet, fmt.Sprintf("B%d", row), d.Hostname)
-		f.SetCellValue(sheet, fmt.Sprintf("C%d", row), d.DeviceType)
-		f.SetCellValue(sheet, fmt.Sprintf("D%d", row), d.RackName)
-		f.SetCellValue(sheet, fmt.Sprintf("E%d", row), d.Status)
-		f.SetCellValue(sheet, fmt.Sprintf("F%d", row), strings.Join(ips, "; "))
-		f.SetCellValue(sheet, fmt.Sprintf("G%d", row), strings.Join(macs, "; "))
-		f.SetCellValue(sheet, fmt.Sprintf("H%d", row), d.Description)
-		f.SetCellValue(sheet, fmt.Sprintf("I%d", row), d.UpdatedAt)
-	}
-
-	f.SetActiveSheet(index)
-	f.DeleteSheet("Sheet1") // Remove default sheet
-
-	if err := f.Write(w); err != nil {
-		http.Error(w, "Error writing Excel file", http.StatusInternalServerError)
+	if err := json.NewEncoder(w).Encode(devices); err != nil {
+		log.Printf("Error encoding devices to JSON: %v", err)
+		http.Error(w, "Error writing JSON file", http.StatusInternalServerError)
 	}
 }
 
